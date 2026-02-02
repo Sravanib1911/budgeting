@@ -3,10 +3,16 @@ import streamlit as st
 
 URL = "https://docs.google.com/spreadsheets/d/1l6E_b0RWIk_W4d7paNr9-vSX4SEzuC75FCBAuqxhZbE/export?format=xlsx"
 
-st.title("Budget Analyzer")
+st.title("Dynamic Budget Analyzer")
 
-# load directly from google sheets
 xls = pd.ExcelFile(URL)
+
+# -------- FILTER MONTH SHEETS --------
+exclude = ["RandomList", "Fixed List", "Credit Card Track", "Income"]
+
+month_sheets = [s for s in xls.sheet_names if s not in exclude]
+
+selected_sheet = st.selectbox("Select Month", sorted(month_sheets))
 
 # -------- FIXED LIST --------
 fixed_df = pd.read_excel(xls, sheet_name="Fixed List")
@@ -18,19 +24,26 @@ st.dataframe(fixed_visible)
 st.metric("Total Fixed Budget", fixed_visible["Amount"].sum())
 
 # -------- MONTH DATA --------
-df = pd.read_excel(xls, sheet_name="Jan 2026")
+df = pd.read_excel(xls, sheet_name=selected_sheet)
 
 df["Category"] = df["Categories-Fixed"].fillna(df["Categories-Random"])
 df = df[df["Category"].notna() & df["Debit"].notna()]
 
-st.subheader("Overall Spend")
+# -------- OVERALL --------
+st.subheader("Category Spend")
 st.bar_chart(df.groupby("Category")["Debit"].sum())
 
-selected_cat = st.selectbox("Select Category", sorted(df["Category"].unique()))
+# -------- CATEGORY DRILL --------
+selected_cat = st.selectbox(
+    "Select Category",
+    sorted(df["Category"].unique())
+)
 
 cat_df = df[df["Category"] == selected_cat]
 
 st.metric("Total Spent", cat_df["Debit"].sum())
+
+st.subheader("Transactions + Reasons")
 st.dataframe(cat_df[["Date","Debit","Reason"]])
 
 st.subheader("Reason Spend")
