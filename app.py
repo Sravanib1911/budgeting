@@ -27,10 +27,11 @@ st.metric("Total Fixed Budget", fixed_visible["Amount"].sum())
 # -------- MONTH DATA --------
 df = pd.read_excel(xls, sheet_name=selected_sheet)
 
+df["Date"] = pd.to_datetime(df["Date"]).dt.strftime("%Y-%m-%d")
+
 df["Category"] = df["Categories-Fixed"].fillna(df["Categories-Random"])
 df = df[df["Category"].notna() & df["Debit"].notna()]
-# ✅ EXCLUDE withdrawals
-df = df[df["Category"].str.lower() != "withdrawal"]
+df = df[~df["Category"].str.strip().str.lower().eq("withdrawal")]
 
 # -------- OVERALL --------
 st.subheader("Category Spend")
@@ -51,5 +52,6 @@ st.dataframe(cat_df[["Date","Debit","Reason"]])
 
 st.subheader("Reason Spend")
 st.bar_chart(cat_df.groupby("Reason")["Debit"].sum())
+
 
 
