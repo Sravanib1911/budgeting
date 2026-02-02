@@ -8,7 +8,7 @@ st.title("Dynamic Budget Analyzer")
 xls = pd.ExcelFile(URL)
 
 # -------- FILTER MONTH SHEETS --------
-exclude = ["RandomList", "Fixed List", "Credit Card Track", "Income"]
+exclude = ["RandomList", "Fixed List", "Credit card track", "Income"]
 
 month_sheets = [s for s in xls.sheet_names if s not in exclude]
 
@@ -48,3 +48,4 @@ st.dataframe(cat_df[["Date","Debit","Reason"]])
 
 st.subheader("Reason Spend")
 st.bar_chart(cat_df.groupby("Reason")["Debit"].sum())
+
