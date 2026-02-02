@@ -19,6 +19,7 @@ fixed_df = pd.read_excel(xls, sheet_name="Fixed List")
 fixed_df.columns = ["Category", "Amount"]
 fixed_visible = fixed_df[fixed_df["Amount"].notna()]
 
+
 st.subheader("Fixed Budget")
 st.dataframe(fixed_visible)
 st.metric("Total Fixed Budget", fixed_visible["Amount"].sum())
@@ -28,6 +29,8 @@ df = pd.read_excel(xls, sheet_name=selected_sheet)
 
 df["Category"] = df["Categories-Fixed"].fillna(df["Categories-Random"])
 df = df[df["Category"].notna() & df["Debit"].notna()]
+# ✅ EXCLUDE withdrawals
+df = df[df["Category"].str.lower() != "withdrawal"]
 
 # -------- OVERALL --------
 st.subheader("Category Spend")
@@ -48,4 +51,5 @@ st.dataframe(cat_df[["Date","Debit","Reason"]])
 
 st.subheader("Reason Spend")
 st.bar_chart(cat_df.groupby("Reason")["Debit"].sum())
+
 
