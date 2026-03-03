@@ -26,6 +26,16 @@ st.metric("Total Fixed Budget", fixed_visible["Amount"].sum())
 
 # -------- MONTH DATA --------
 df = pd.read_excel(xls, sheet_name=selected_sheet)
+# Separate Fixed and Random spends
+fixed_spent = df[df["Categories-Fixed"].notna()]["Debit"].sum()
+random_spent = df[df["Categories-Random"].notna()]["Debit"].sum()
+
+st.subheader("Monthly Spend Summary")
+col1, col2 = st.columns(2)
+
+col1.metric("Total Fixed Spent", fixed_spent)
+col2.metric("Total Random Spent", random_spent)
+
 
 df["Date"] = pd.to_datetime(df["Date"]).dt.strftime("%d/%m/%Y")
 
@@ -53,6 +63,7 @@ st.dataframe(cat_df[["Date","Debit","Reason"]])
 
 st.subheader("Reason Spend")
 st.bar_chart(cat_df.groupby("Reason")["Debit"].sum())
+
 
 
 
